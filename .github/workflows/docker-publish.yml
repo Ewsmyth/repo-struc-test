@@ -2,8 +2,8 @@ name: Publish Docker Image
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 jobs:
   build-and-push:
@@ -43,7 +43,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/ewsmyth/repo-struc-test:${{ env.VERSION }}
-            ghcr.io/ewsmyth/repo-struc-test:latest
+            ghcr.io/ewsmyth/repo-struc-test/repo-struc-test:${{ env.VERSION }}
+            ghcr.io/ewsmyth/repo-struc-test/repo-struc-test:latest
           build-args: |
             VERSION=${{ env.VERSION }}
