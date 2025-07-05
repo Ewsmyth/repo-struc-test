@@ -2,16 +2,23 @@ name: Publish Docker Image
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    permissions:
+      packages: write
+      contents: read
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Get Commit Message
         id: get-Message
@@ -24,11 +31,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.REPO_TEST_TOKEN }}
 
+      - name: Read version from file
+        id: version
+        run: |
+          VERSION=$(cat version.txt)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
           context: .
           push: true
           tags: |
-            ghcr.io/ewsmyth/owow:latest
-            ghcr.io/ewsmyth/owow:${{ env.COMMIT_MSG }}
+            ghcr.io/${{ github.repository }}:${{ env.VERSION }}
+            ghcr.io/${{ github.repository }}:latest
+          build-args: |
+            VERSION=${{ env.VERSION }}
